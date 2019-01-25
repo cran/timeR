@@ -1,0 +1,15 @@
+7b90672807a4fb717b5a3c11c6d7bc97 *DESCRIPTION
+6b2cdec4b874b3fbb1df8e648eb36f76 *LICENSE
+1e27cd7018a4fe6dfdc3bdedac435342 *NAMESPACE
+e7d4d022ab5e81a4831349255073c996 *R/timer.R
+ada9fc7f753888c61c49020db259c74b *R/timer_class.R
+283774ea6e6f9af3be0336c72d9c8b72 *R/timer_function.R
+9b97a36416f77a64cd9d857e7c15f417 *README.md
+88cc165239e3dc77832fd96e15b1acdf *build/vignette.rds
+7bc9e5bd293b2a4afaa0ff053d67da4b *inst/doc/timer-quick-start.R
+4f81c01c6d5b76b002ad0a1d091cdc07 *inst/doc/timer-quick-start.Rmd
+4d1448ea2172b075c240e59fde89a6d9 *inst/doc/timer-quick-start.html
+823d89046dd5980f97dfdc90d68f01f6 *man/createTimer.Rd
+f0abcbcd41928438d4cd2070c3f43233 *man/getTimer.Rd
+7750a575c627050a6f633920c167fc9c *man/timeR.Rd
+4f81c01c6d5b76b002ad0a1d091cdc07 *vignettes/timer-quick-start.Rmd
