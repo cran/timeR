@@ -1,6 +1,9 @@
 # timeR
 
 [![Travis build status](https://travis-ci.org/yusuzech/timeR.svg?branch=master)](https://travis-ci.org/yusuzech/timeR)
+![](https://cranlogs.r-pkg.org/badges/grand-total/timeR)
+![](https://cranlogs.r-pkg.org/badges/timeR)
+![](https://cranlogs.r-pkg.org/badges/last-day/timeR)
 ## A simple package for timing your code.
 
 `timeR` package allows you to create a *timer* object
@@ -12,7 +15,8 @@ your analysis. You can use `timeR` to time training time for machine learning mo
 ## How to install
 
 ```r
-# current this package is not on CRAN, please install from github
+install.packages("timeR")
+# or install from github for the newest version
 devtools::install_github("yusuzech/timeR")
 ```
 
@@ -44,4 +48,8 @@ my_timer$toggleVerbose()
 
 # warnings will still be shown when verbose is turned off
 my_timer$stop("event one")
+
+# to get methods to get attributes of a selected event
+my_timer$getEvent("event one")
+my_timer$getStartTime(event two)
 ```

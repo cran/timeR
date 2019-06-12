@@ -23,6 +23,7 @@ my_timer$stop("event two", comment = "my comment") # comment is optional
 # retrieve the table for all recordings
 getTimer(my_timer)
 
+
 # or create a timer object and setting verbose to false
 my_timer2 <- createTimer(verbose = F)
 
@@ -52,6 +53,13 @@ mytimer$stop("event 2",comment = "custom comment")
 
 # print records
 getTimer(mytimer)
+
+# get attributes for selected events
+mytimer$getStartTime("event 1")
+mytimer$getStopTime("event 1")
+mytimer$getTimeElapsed("event 1")
+mytimer$getComment("event 1")
+mytimer$getEvent("event 1")
 
 ## ------------------------------------------------------------------------
 #initalize a dataframe to store the information

@@ -23,6 +23,16 @@
 #'   }{Remove an given row in the eventTable.}
 #'   \item{\code{toggleVerbose()}
 #'   }{Toggle between \code{TRUE} and \code{FALSE} for \code{verbose}}
+#'   \item{\code{getStartTime()}
+#'   }{Get start time for a selected event.}
+#'   \item{\code{getStopTime()}
+#'   }{Get stop time for a selected event.}
+#'   \item{\code{getTimeElapsed()}
+#'   }{Get time elapsed for a selected event.}
+#'   \item{\code{getComment()}
+#'   }{Get comment for a selected event.}
+#'   \item{\code{getEventf()}
+#'   }{Get entire row for a selected event.}
 #'   \item{\code{print()}
 #'   }{Custom print method for timer class. However, you don't need to use this
 #'   function to generate custom printing.
@@ -34,63 +44,57 @@
 #' }{A function that controls whether to print extra message.}
 #' }
 #' @examples
-#' timer1 <- createTimer()
-#' timer1$start("event1")
+#' timer <- createTimer()
+#' timer$start("event1")
 #' # put some codes in between
-#' timer1$stop("event1")
+#' timer$stop("event1")
 #'
-#' timer1$start("event2")
+#' timer$start("event2")
 #' # put some codes in between
-#' timer1$stop("event2",comment = "event 2 completed")
+#' timer$stop("event2",comment = "event 2 completed")
 #'
-#' table1 <- getTimer(timer1)
-#' timer1$toggleVerbose() # set verbose to FALSE as default is TRUE
+#' table1 <- getTimer(timer)
+#' timer$toggleVerbose() # set verbose to FALSE as default is TRUE
 #'
 #' table1 # print all records in a tibble(data frame)
+#'
+#' # get attributes for selected events
+#' timer$getStartTime("event1")
+#' timer$getStopTime("event1")
+#' timer$getTimeElapsed("event1")
+#' timer$getComment("event1")
+#' timer$getEvent("event1")
 #' @importFrom R6 R6Class
 #' @export
-timer <- R6::R6Class(
-    classname = "timer",
+timeR <- R6::R6Class(
+    classname = "timeR",
     public = list(
         #values
-        time = .POSIXct(character()),
-        event = character(),
-        eventTable = data.frame(),
+        eventTable = data.frame(
+            event = character(),
+            start = character(),
+            end = character(),
+            timeElapsed = numeric(),
+            stringsAsFactors = FALSE,
+            comment = character()),
         verbose = logical(),
-        #initialize timer
-        initialize = function(time=.POSIXct(character(1)),
-                              event=character(1),
-                              verbose=TRUE,
-                              eventTable=data.frame(
-                                  event = character(),
-                                  start = .POSIXct(character()),
-                                  end = .POSIXct(character()),
-                                  timeElapsed = numeric(),
-                                  stringsAsFactors = FALSE,
-                                  comment = character())){
-            #check if input values are correct
-            stopifnot(any(is(time,"POSIXt"),
-                          is(time,"POSIXct")),
-                      length(time) == 1)
-            stopifnot(is.character(event),
-                      length(event) == 1)
-            stopifnot(is.data.frame(eventTable))
-            stopifnot(!is.na(verbose),
-                      is.logical(verbose))
-            #initialize values
-            self$time = time
-            self$event = event
+        #initialize timeR
+        initialize = function(verbose=TRUE){
+            stopifnot(is.logical(verbose),!is.na(verbose))
             self$verbose = verbose
-            self$eventTable = eventTable},
-        #start a timer for event
+        },
+        #start a timeR for event
         start = function(eventName){
+            if(!exists("eventName")){
+                stop("Please create a name for the event.")
+            }
             theTable <- self$eventTable
             verbose <- self$verbose
-            current_time <- Sys.time()
+            current_time <- as.character(lubridate::now())
             #create that record/row
             newRow <- data.frame(event = eventName,
                                  start = current_time,
-                                 end = .POSIXct(character(1)),
+                                 end = character(1),
                                  timeElapsed = numeric(1),
                                  stringsAsFactors = FALSE,
                                  comment = NA_character_)
@@ -108,15 +112,13 @@ timer <- R6::R6Class(
                 #append new row
                 self$eventTable <- rbind(theTable,newRow)
             }
-            self$time <- current_time
-            self$event <- eventName
             invisible(self)
         },
-        #stop timer
+        #stop timeR
         stop = function(eventName,comment=NA_character_){
             theTable <- self$eventTable
             verbose <- self$verbose
-            current_time <- Sys.time()
+            current_time <- as.character(lubridate::now())
             #detect if event already exists
             if (any(theTable$event %in% eventName)){
                 #detect if end time for event already exist
@@ -131,7 +133,11 @@ timer <- R6::R6Class(
                 #modify the end anyway
                 isEventRow <- theTable$event == eventName
                 startTime <- self$eventTable[isEventRow, ][["start"]]
-                timeElapsed <- as.numeric(current_time - startTime)
+                timeElapsed <- difftime(
+                    lubridate::ymd_hms(current_time,tz = Sys.timezone()),
+                    lubridate::ymd_hms(startTime,tz = Sys.timezone()),
+                    units = "secs"
+                    )
                 self$eventTable[isEventRow, ][["end"]] <- current_time
                 self$eventTable[isEventRow, ][["timeElapsed"]] <- timeElapsed
                 self$eventTable[isEventRow, ][["comment"]] <- comment
@@ -143,8 +149,6 @@ timer <- R6::R6Class(
                               "', ",round(timeElapsed,2),
                               " seconds elapsed.\n")
             private$slprint(out_msg)
-            self$time <- current_time
-            self$event <- eventName
             invisible(self)
         },
         getTimer = function(...){
@@ -169,17 +173,49 @@ timer <- R6::R6Class(
             writeLines(out_msg)
             invisible(self)
         },
+        getStartTime = function(eventName){
+            rowIndex <- which(eventName == self$eventTable$event)
+            if (length(rowIndex) == 0) {
+                stop("event doesn't exist.")
+            }
+            result <- self$eventTable[rowIndex,"start"]
+            return(result)
+        },
+        getStopTime = function(eventName){
+            rowIndex <- which(eventName == self$eventTable$event)
+            if (length(rowIndex) == 0) {
+                stop("event doesn't exist.")
+            }
+            result <- self$eventTable[rowIndex,"stop"]
+            return(result)
+        },
+        getTimeElapsed = function(eventName){
+            rowIndex <- which(eventName == self$eventTable$event)
+            if (length(rowIndex) == 0) {
+                stop("event doesn't exist.")
+            }
+            result <- self$eventTable[rowIndex,"timeElapsed"]
+            return(result)
+        },
+        getComment = function(eventName){
+            rowIndex <- which(eventName == self$eventTable$event)
+            if (length(rowIndex) == 0) {
+                stop("event doesn't exist.")
+            }
+            result <- self$eventTable[rowIndex,"comment"]
+            return(result)
+        },
+        getEvent = function(eventName){
+            rowIndex <- which(eventName == self$eventTable$event)
+            if (length(rowIndex) == 0) {
+                stop("event doesn't exist.")
+            }
+            result <- self$eventTable[rowIndex,]
+            return(result)
+        },
         print = function(...){
-            current_table <- self$eventTable
-            out_msg1 <- paste0("Current event: '",self$event,
-                               "' at ",as.character(self$time),".\n",
-                               "--------------------------------\n",
-                               "Current eventTable has ",
-                               nrow(current_table)," records:")
-            out_msg2 <- capture.output(print(current_table))
-            out_msg <- c(out_msg1,out_msg2)
-            writeLines(out_msg)
-            invisible(self)
+            writeLines("Your Table is:")
+            print(self$eventTable)
         }
     ),
     #function used to determine whether message is printed
@@ -188,5 +224,7 @@ timer <- R6::R6Class(
             if(flag) writeLines(msg)
         }
     ),
-    active = list(now = Sys.time)
+    active = list(now = function(){
+        as.POSIXct(Sys.time(), format = "%Y-%m-%d %H:%M")
+    })
 )
