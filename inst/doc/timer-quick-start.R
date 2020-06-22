@@ -7,7 +7,7 @@ library(timeR)
 
 ## ------------------------------------------------------------------------
 library(timeR)
-# Create a timer object
+# Create a timer object(precision default to s)
 my_timer <- createTimer()
 
 # start timing for an event
@@ -36,8 +36,8 @@ my_timer$stop("event one")
 
 
 ## ------------------------------------------------------------------------
-#initialize a timer object named mytimer
-mytimer <- createTimer()
+#initialize a timer object named mytimer: s, ms, us can be used as precision
+mytimer <- createTimer(precision = "us")
 
 # event 1
 mytimer$start("event 1")

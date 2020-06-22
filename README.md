@@ -1,4 +1,4 @@
-# timeR
+# timeR 1.2.0
 
 [![Travis build status](https://travis-ci.org/yusuzech/timeR.svg?branch=master)](https://travis-ci.org/yusuzech/timeR)
 ![](https://cranlogs.r-pkg.org/badges/grand-total/timeR)
@@ -16,7 +16,7 @@ your analysis. You can use `timeR` to time training time for machine learning mo
 
 ```r
 install.packages("timeR")
-# or install from github for the newest version
+# or install from github
 devtools::install_github("yusuzech/timeR")
 ```
 
@@ -24,7 +24,7 @@ devtools::install_github("yusuzech/timeR")
 
 ```r
 library(timeR)
-# Create a timer object
+# Create a timer object,precision default to s(second)
 my_timer <- createTimer()
 
 # start timing for an event
@@ -40,8 +40,9 @@ my_timer$stop("event two", comment = "my comment") # comment is optional
 # retrieve the table for all recordings
 getTimer(my_timer)
 
-# or create a timer object and setting verbose to false
-my_timer2 <- createTimer(verbose = F)
+# or create a timer object and setting verbose to false and use other precision
+# s(second), ms(millisecond), us(microsecond)
+my_timer2 <- createTimer(verbose = F,precision = "ms")
 
 # toggle on/off verbose
 my_timer$toggleVerbose()
@@ -49,7 +50,7 @@ my_timer$toggleVerbose()
 # warnings will still be shown when verbose is turned off
 my_timer$stop("event one")
 
-# to get methods to get attributes of a selected event
+# get attributes of a selected event
 my_timer$getEvent("event one")
-my_timer$getStartTime(event two)
+my_timer$getStartTime("event two")
 ```
